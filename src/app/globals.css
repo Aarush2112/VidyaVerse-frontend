@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --neu-base: #F3F4F6;
+    --neu-text-main: #4A5568;
+    --neu-text-sub: #A0AEC0;
+    --neu-accent: #7C3AED;
+
+    /* Light Mode Shadows */
+    --neu-shadow-convex-light: #ffffff;
+    --neu-shadow-convex-dark: #a3b1c6;
+
+    --neu-shadow-concave-light: #ffffff;
+    --neu-shadow-concave-dark: #a3b1c6;
+  }
+
+  .dark {
+    --neu-base: #1E293B;
+    /* Slate 800 roughly, deep dark blue-grey */
+    --neu-text-main: #E2E8F0;
+    --neu-text-sub: #94A3B8;
+    --neu-accent: #8B5CF6;
+
+    /* Dark Mode Shadows - Subtler, using black for depth and lighter grey for highlight */
+    --neu-shadow-convex-light: #2D3E56;
+    /* Lighter top-left */
+    --neu-shadow-convex-dark: #0F172A;
+    /* Darker bottom-right */
+
+    --neu-shadow-concave-light: #2D3E56;
+    --neu-shadow-concave-dark: #0F172A;
+  }
+}
+
+@theme {
+  --color-neu-base: var(--neu-base);
+  --color-neu-text-main: var(--neu-text-main);
+  --color-neu-text-sub: var(--neu-text-sub);
+  --color-neu-accent: var(--neu-accent);
+
+  --shadow-neu-convex-sm: 5px 5px 10px var(--neu-shadow-convex-dark), -5px -5px 10px var(--neu-shadow-convex-light);
+  --shadow-neu-convex-md: 9px 9px 16px var(--neu-shadow-convex-dark), -9px -9px 16px var(--neu-shadow-convex-light);
+  --shadow-neu-convex-lg: 20px 20px 60px var(--neu-shadow-convex-dark), -20px -20px 60px var(--neu-shadow-convex-light);
+
+  --shadow-neu-concave-sm: inset 3px 3px 7px var(--neu-shadow-convex-dark), inset -3px -3px 7px var(--neu-shadow-convex-light);
+  --shadow-neu-concave-md: inset 6px 6px 12px var(--neu-shadow-convex-dark), inset -6px -6px 12px var(--neu-shadow-convex-light);
+
+  --shadow-neu-float: 15px 15px 30px var(--neu-shadow-convex-dark), -15px -15px 30px var(--neu-shadow-convex-light);
+}
+
+@layer base {
+  body {
+    @apply bg-neu-base text-neu-text-main antialiased selection:bg-neu-accent selection:text-white;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  }
+}
+
+@layer utilities {
+  .neu-text-chiselled {
+    text-shadow: 1px 1px 2px #ffffff, -1px -1px 2px #a3b1c6;
+  }
+}

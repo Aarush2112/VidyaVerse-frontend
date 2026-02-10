@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 14, "column": 0}, "map": {"version":3,"sources":["file:///Users/aarushgupta/Documents/Projects/LMS/Frontend/app/page.tsx"],"sourcesContent":["import { SignedIn, SignedOut, SignInButton } from \"@clerk/nextjs\";\n\nexport default function Home() {\n  return (\n    <main style={{ padding: 32 }}>\n      <SignedOut>\n        <SignInButton />\n      </SignedOut>\n\n      <SignedIn>\n        <h1>Welcome 🎉</h1>\n      </SignedIn>\n    </main>\n  );\n}\n"],"names":[],"mappings":";;;;;AAAA;AAAA;;;AAEe,SAAS;IACtB,qBACE,iQAAC;QAAK,OAAO;YAAE,SAAS;QAAG;;0BACzB,iQAAC,yMAAS;0BACR,cAAA,iQAAC,yNAAY;;;;;;;;;;0BAGf,iQAAC,wMAAQ;0BACP,cAAA,iQAAC;8BAAG;;;;;;;;;;;;;;;;;AAIZ"}}]
+}

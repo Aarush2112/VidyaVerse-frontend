@@ -2,6 +2,7 @@
 node_modules/
 
 # next.js
+.next
 .next/
 out/
 
@@ -15,3 +16,5 @@ out/
 # misc
 .DS_Store
 .vscode/
+
+backend

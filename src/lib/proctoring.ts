@@ -1,4 +1,3 @@
-import { db } from "@/lib/db";
 import { ProctorEvent, AttemptStatus } from "@prisma/client";
 
 export class ProctoringService {
@@ -8,11 +7,9 @@ export class ProctoringService {
      */
     static async logViolation(attemptId: string, type: ProctorEvent, metadata: any = {}) {
         // 1. Fetch Attempt to get User ID
-        const attempt = await db.examAttempt.findUnique({ where: { id: attemptId } });
         if (!attempt) throw new Error("Attempt not found");
 
         // 2. Log the violation
-        const log = await db.proctorLog.create({
             data: {
                 attemptId,
                 userId: attempt.studentId,
@@ -26,7 +23,6 @@ export class ProctoringService {
 
         // Check if the current event is critical
         if (criticalTypes.includes(type)) {
-            const violationCount = await db.proctorLog.count({
                 where: {
                     attemptId,
                     event: { in: ['TAB_SWITCH', 'FULLSCREEN_EXIT', 'MULTIPLE_FACES'] }
@@ -46,7 +42,6 @@ export class ProctoringService {
      * Terminates an exam session immediately.
      */
     static async terminateSession(attemptId: string, reason: string) {
-        return await db.examAttempt.update({
             where: { id: attemptId },
             data: {
                 status: 'TERMINATED',
@@ -60,7 +55,6 @@ export class ProctoringService {
      * 100 = Perfect, < 50 = Suspicious
      */
     static async calculateTrustScore(attemptId: string) {
-        const logs = await db.proctorLog.findMany({ where: { attemptId } });
         let score = 100;
 
         logs.forEach(log => {

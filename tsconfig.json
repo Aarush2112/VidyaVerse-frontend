@@ -23,15 +23,6 @@
       }
     ],
     "paths": {
-      "@/backend/*": [
-        "./backend/*"
-      ],
-      "@/app/actions/*": [
-        "./backend/actions/app_actions/*"
-      ],
-      "@/actions/*": [
-        "./backend/actions/root/*"
-      ],
       "@/*": [
         "./src/*"
       ]

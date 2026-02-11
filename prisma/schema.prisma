@@ -1,0 +1,742 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                   String                 @id @default(uuid())
+  clerkId              String                 @unique
+  email                String                 @unique
+  name                 String?
+  role                 Role                   @default(STUDENT)
+  xp                   Int                    @default(0)
+  batchId              String?
+  createdAt            DateTime               @default(now())
+  adminProfile         AdminProfile?
+  arenaSubmissions     ArenaSubmission[]
+  auditEvents          AuditEvent[]
+  auditLogs            AuditLog[]
+  bookings             Booking[]
+  challengeSubmissions ChallengeSubmission[]
+  teachingCourses      Course[]               @relation("Teaching")
+  enrollments          Enrollment[]
+  examAttempts         ExamAttempt[]
+  transactions         FinancialTransaction[]
+  gamification         Gamification?
+  interviewSessions    InterviewSession[]
+  payouts              Payout[]
+  proctorLogs          ProctorLog[]
+  profile              Profile?
+  studentProfile       StudentProfile?
+  submissions          Submission[]
+  batch                Batch?                 @relation(fields: [batchId], references: [id])
+  userProgress         UserProgress[]
+}
+
+model Batch {
+  id       String   @id @default(uuid())
+  name     String
+  students User[]
+  courses  Course[] @relation("BatchToCourse")
+}
+
+model Course {
+  id            String                 @id @default(uuid())
+  title         String
+  description   String?
+  code          String                 @unique
+  thumbnail     String?
+  price         Float?
+  isPublished   Boolean                @default(false)
+  isArchived    Boolean                @default(false)
+  stream        Stream                 @default(CSE)
+  semester      String                 @default("Spring 2026")
+  credits       Int                    @default(4)
+  capacity      Int                    @default(60)
+  difficulty    CourseDifficulty       @default(INTERMEDIATE)
+  tags          String[]
+  totalLessons  Int                    @default(0)
+  totalStudents Int                    @default(0)
+  teacherId     String
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  assignments   Assignment[]
+  attachments   Attachment[]
+  chapters      Chapter[]
+  teacher       User                   @relation("Teaching", fields: [teacherId], references: [id])
+  enrollments   Enrollment[]
+  transactions  FinancialTransaction[]
+  batches       Batch[]                @relation("BatchToCourse")
+}
+
+model Chapter {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  courseId      String
+  position      Int
+  isPublished   Boolean  @default(false)
+  isFreePreview Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons       Lesson[]
+
+  @@index([courseId])
+}
+
+model Lesson {
+  id            String         @id @default(uuid())
+  title         String
+  chapterId     String
+  position      Int
+  isPublished   Boolean        @default(false)
+  type          String
+  videoUrl      String?
+  videoDuration Float?
+  muxPlaybackId String?
+  muxAssetId    String?
+  textContent   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  chapter       Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  resources     Resource[]
+  userProgress  UserProgress[]
+
+  @@index([chapterId])
+}
+
+model Resource {
+  id        String   @id @default(uuid())
+  name      String
+  url       String
+  fileType  String
+  fileSize  Int
+  lessonId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+}
+
+model Attachment {
+  id        String   @id @default(uuid())
+  name      String
+  url       String
+  courseId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+}
+
+model UserProgress {
+  id          String   @id @default(uuid())
+  userId      String
+  lessonId    String
+  isCompleted Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([lessonId])
+}
+
+model Enrollment {
+  id              String   @id @default(uuid())
+  userId          String
+  courseId        String
+  percentComplete Int      @default(0)
+  lastAccessedAt  DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model CourseTemplate {
+  id             String   @id @default(uuid())
+  name           String
+  description    String
+  defaultModules Json
+  tags           String[]
+}
+
+model Assignment {
+  id               String              @id @default(uuid())
+  title            String
+  description      String?
+  type             AssignmentType
+  courseId         String
+  isPublished      Boolean             @default(false)
+  startDate        DateTime            @default(now())
+  dueDate          DateTime?
+  points           Int                 @default(100)
+  latePolicy       LatePolicy?         @default(STRICT)
+  isProctored      Boolean             @default(false)
+  ipRestriction    Boolean             @default(false)
+  timeLimit        Int?
+  allowedLanguages String[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  course           Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  problems         AssignmentProblem[]
+  examAttempts     ExamAttempt[]
+  proctoringConfig ProctoringConfig?
+  questions        Question[]
+  submissions      Submission[]
+
+  @@index([courseId])
+  @@index([isPublished])
+}
+
+model Question {
+  id            String     @id @default(uuid())
+  assignmentId  String
+  text          String
+  options       Json
+  correctOption Int
+  points        Int        @default(10)
+  assignment    Assignment @relation(fields: [assignmentId], references: [id])
+}
+
+model AssignmentProblem {
+  id               String               @id @default(uuid())
+  title            String
+  description      String
+  allowedLanguages String[]
+  cpuTimeLimit     Float                @default(1.0)
+  assignmentId     String
+  assignment       Assignment           @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  testCases        AssignmentTestCase[]
+}
+
+model AssignmentTestCase {
+  id             String            @id @default(uuid())
+  input          String
+  expectedOutput String
+  isHidden       Boolean           @default(false)
+  points         Int               @default(10)
+  problemId      String
+  problem        AssignmentProblem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+model Submission {
+  id            String           @id @default(uuid())
+  code          String?
+  languageId    Int?
+  executionTime Float?
+  memoryUsed    Float?
+  score         Int?
+  totalPoints   Int?
+  answers       Json?
+  submittedAt   DateTime         @default(now())
+  status        SubmissionStatus
+  createdAt     DateTime         @default(now())
+  userId        String
+  assignmentId  String
+  studentId     String?
+  assignment    Assignment       @relation(fields: [assignmentId], references: [id])
+  user          User             @relation(fields: [userId], references: [id])
+}
+
+model ProctorLog {
+  id           String       @id @default(uuid())
+  event        ProctorEvent
+  timestamp    DateTime     @default(now())
+  snapshotUrl  String?
+  userId       String
+  assignmentId String?
+  details      Json?
+  attemptId    String?
+  attempt      ExamAttempt? @relation(fields: [attemptId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+}
+
+model ProctorEvidence {
+  id         String   @id @default(uuid())
+  studentId  String
+  examId     String
+  screenshot String?
+  webcam     String?
+  timestamp  DateTime @default(now())
+}
+
+model ProctoringConfig {
+  id                String     @id @default(uuid())
+  assignmentId      String     @unique
+  isStrict          Boolean    @default(false)
+  blockMultipleTabs Boolean    @default(true)
+  recordWebcam      Boolean    @default(true)
+  recordScreen      Boolean    @default(true)
+  recordAudio       Boolean    @default(true)
+  assignment        Assignment @relation(fields: [assignmentId], references: [id])
+}
+
+model ExamAttempt {
+  id                 String        @id @default(uuid())
+  assignmentId       String
+  studentId          String
+  status             AttemptStatus @default(INITIATED)
+  startTime          DateTime      @default(now())
+  endTime            DateTime?
+  durationSeconds    Int?
+  ipAddress          String?
+  userAgent          String?
+  deviceFingerprint  String?
+  webcamRecordingUrl String?
+  screenRecordingUrl String?
+  assignment         Assignment    @relation(fields: [assignmentId], references: [id])
+  student            User          @relation(fields: [studentId], references: [id])
+  logs               ProctorLog[]
+
+  @@unique([assignmentId, studentId])
+}
+
+model Profile {
+  id              String  @id @default(uuid())
+  userId          String  @unique
+  fullName        String?
+  stream          String?
+  currentSemester Int?
+  bio             String?
+  avatarUrl       String?
+  githubHandle    String?
+  linkedinUrl     String?
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Gamification {
+  id               String    @id @default(uuid())
+  userId           String    @unique
+  xp               Int       @default(0)
+  level            Int       @default(1)
+  currentStreak    Int       @default(0)
+  lastActivityDate DateTime?
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CodingChallenge {
+  id          String                @id @default(uuid())
+  title       String
+  difficulty  Difficulty
+  tags        String[]
+  starterCode String
+  testCases   Json
+  submissions ChallengeSubmission[]
+}
+
+model ChallengeSubmission {
+  id            String          @id @default(uuid())
+  challengeId   String
+  userId        String
+  code          String
+  status        ChallengeStatus
+  executionTime Int?
+  memoryUsage   Int?
+  createdAt     DateTime        @default(now())
+  challenge     CodingChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Mentor {
+  id          String    @id @default(uuid())
+  name        String
+  expertise   String[]
+  isOnline    Boolean   @default(false)
+  calendlyUrl String?
+  bookings    Booking[]
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  mentorId    String
+  studentId   String
+  scheduledAt DateTime
+  status      BookingStatus @default(CONFIRMED)
+  mentor      Mentor        @relation(fields: [mentorId], references: [id])
+  student     User          @relation(fields: [studentId], references: [id])
+}
+
+model Problem {
+  id              String            @id @default(uuid())
+  title           String
+  slug            String?           @unique
+  description     String
+  difficulty      String
+  starterCode     String
+  source          ProblemSource     @default(OFFICIAL)
+  createdByUserId String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  submissions     ArenaSubmission[]
+  testCases       TestCase[]
+
+  @@index([createdByUserId])
+}
+
+model TestCase {
+  id             String  @id @default(uuid())
+  problemId      String
+  input          String
+  expectedOutput String
+  isHidden       Boolean @default(false)
+  problem        Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([problemId])
+}
+
+model ArenaSubmission {
+  id         String   @id @default(uuid())
+  userId     String
+  problemId  String
+  code       String
+  status     String
+  runtimeMs  Int?
+  passCount  Int
+  totalCount Int
+  createdAt  DateTime @default(now())
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([problemId])
+}
+
+model StudentProfile {
+  id              String         @id @default(uuid())
+  userId          String         @unique
+  cohort          String
+  rollNumber      String         @unique
+  currentGPA      Float          @default(0.0)
+  attendanceRate  Float          @default(0.0)
+  riskScore       Int            @default(0)
+  isFlaggedAtRisk Boolean        @default(false)
+  flagReason      String?
+  interventions   Intervention[]
+  notifications   Notification[]
+  user            User           @relation(fields: [userId], references: [id])
+}
+
+model Intervention {
+  id        String         @id @default(uuid())
+  studentId String
+  teacherId String
+  type      String
+  status    String
+  notes     String?
+  createdAt DateTime       @default(now())
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+}
+
+model Notification {
+  id        String         @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      String
+  isRead    Boolean        @default(false)
+  createdAt DateTime       @default(now())
+  student   StudentProfile @relation(fields: [userId], references: [id])
+}
+
+model AdminProfile {
+  id          String  @id @default(uuid())
+  userId      String  @unique
+  role        Role    @default(ACADEMIC_ADMIN)
+  permissions Json
+  lastLoginIp String?
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String      @id @default(uuid())
+  adminId   String
+  action    AuditAction
+  targetId  String?
+  details   Json?
+  ipAddress String
+  userAgent String
+  createdAt DateTime    @default(now())
+  admin     User        @relation(fields: [adminId], references: [id])
+}
+
+model SystemMetric {
+  id                String   @id @default(uuid())
+  timestamp         DateTime @default(now())
+  cpuUsage          Float
+  memoryUsage       Float
+  activeConnections Int
+  errorRate         Float
+}
+
+model FinancialTransaction {
+  id              String            @id @default(uuid())
+  amount          Float
+  currency        String            @default("USD")
+  type            TransactionType
+  status          TransactionStatus
+  stripePaymentId String?
+  description     String
+  userId          String
+  courseId        String?
+  createdAt       DateTime          @default(now())
+  payoutId        String?
+  course          Course?           @relation(fields: [courseId], references: [id])
+  payout          Payout?           @relation(fields: [payoutId], references: [id])
+  user            User              @relation(fields: [userId], references: [id])
+}
+
+model Payout {
+  id           String                 @id @default(uuid())
+  instructorId String
+  amount       Float
+  status       TransactionStatus      @default(PENDING)
+  processedAt  DateTime?
+  transactions FinancialTransaction[]
+  instructor   User                   @relation(fields: [instructorId], references: [id])
+}
+
+model DailyRevenue {
+  id                String   @id @default(uuid())
+  date              DateTime @unique
+  totalVolume       Float
+  platformFees      Float
+  instructorPayouts Float
+}
+
+model SystemHealthSnapshot {
+  id                String   @id @default(uuid())
+  timestamp         DateTime @default(now())
+  cpuLoad           Float
+  memoryUsage       Float
+  databaseLatencyMs Float
+  activeRequests    Int
+  errorRate         Float
+}
+
+model ServiceStatusLog {
+  id          String        @id @default(uuid())
+  serviceName String
+  status      ServiceStatus
+  updatedAt   DateTime      @updatedAt
+  message     String?
+}
+
+model ErrorLog {
+  id           String   @id @default(uuid())
+  timestamp    DateTime @default(now())
+  severity     String
+  endpoint     String
+  errorMessage String
+  stackTrace   String?
+}
+
+model AuditEvent {
+  id           String        @id @default(uuid())
+  timestamp    DateTime      @default(now())
+  actorId      String
+  actorEmail   String
+  ipAddress    String
+  userAgent    String
+  action       AuditAction
+  resourceType String
+  resourceId   String?
+  changes      Json?
+  metadata     Json?
+  severity     AuditSeverity @default(INFO)
+  actor        User          @relation(fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([resourceId])
+  @@index([timestamp])
+}
+
+model InterviewSession {
+  id              String             @id @default(uuid())
+  userId          String
+  type            InterviewType
+  persona         String
+  durationSeconds Int
+  status          SessionStatus
+  createdAt       DateTime           @default(now())
+  feedback        InterviewFeedback?
+  user            User               @relation(fields: [userId], references: [id])
+  transcript      InterviewTurn[]
+}
+
+model InterviewTurn {
+  id        String           @id @default(uuid())
+  sessionId String
+  role      String
+  content   String
+  timestamp Int
+  session   InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model InterviewFeedback {
+  id                  String           @id @default(uuid())
+  sessionId           String           @unique
+  technicalScore      Int
+  communicationScore  Int
+  confidenceScore     Int
+  problemSolvingScore Int              @default(0)
+  cultureFitScore     Int              @default(0)
+  executiveSummary    String
+  strengths           String[]
+  weaknesses          String[]
+  hiringDecision      String
+  session             InterviewSession @relation(fields: [sessionId], references: [id])
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+  MENTOR
+  SUPER_ADMIN
+  ACADEMIC_ADMIN
+  SUPPORT_AGENT
+}
+
+enum AssignmentType {
+  ALGORITHM
+  PROJECT
+  THEORY
+}
+
+enum LatePolicy {
+  STRICT
+  FLEXIBLE
+}
+
+enum SubmissionStatus {
+  PENDING
+  ACCEPTED
+  WRONG_ANSWER
+  TLE
+  COMPILE_ERROR
+}
+
+enum ProctorEvent {
+  TAB_SWITCH
+  FULLSCREEN_EXIT
+  MULTIPLE_FACES
+  NO_FACE
+  WINDOW_BLUR
+  COPY_PASTE
+  MOUSE_LEAVE
+  BROWSER_CLOSE
+}
+
+enum AttemptStatus {
+  INITIATED
+  IN_PROGRESS
+  SUBMITTED
+  TERMINATED
+  TIMEOUT
+}
+
+enum Stream {
+  CSE
+  ECE
+  MECH
+  AI_ML
+}
+
+enum CourseDifficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum ChallengeStatus {
+  PASSED
+  FAILED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+enum ProblemSource {
+  OFFICIAL
+  AI_GENERATED
+  USER_CUSTOM
+}
+
+enum AuditAction {
+  USER_BANNED
+  COURSE_DELETED
+  GRADE_OVERRIDE
+  ROLE_UPDATED
+  SYSTEM_CONFIG_CHANGED
+  ADMIN_IMPERSONATION
+  USER_WIPEOUT
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  PERMISSION_CHANGE
+  SENSITIVE_VIEW
+}
+
+enum TransactionType {
+  COURSE_PURCHASE
+  SUBSCRIPTION
+  REFUND
+  INSTRUCTOR_PAYOUT
+}
+
+enum TransactionStatus {
+  SUCCESS
+  PENDING
+  FAILED
+  REFUNDED
+}
+
+enum ServiceStatus {
+  OPERATIONAL
+  DEGRADED
+  DOWN
+  MAINTENANCE
+}
+
+enum AuditSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum InterviewType {
+  BEHAVIORAL
+  TECHNICAL_DSA
+  SYSTEM_DESIGN
+  HR_NEGOTIATION
+}
+
+enum SessionStatus {
+  COMPLETED
+  ABORTED
+  FAILED
+}

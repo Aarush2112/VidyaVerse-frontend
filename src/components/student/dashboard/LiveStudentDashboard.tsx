@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from '@tanstack/react-query';
-import { fetchCommandCenterData, DashboardData } from "@/app/actions/dashboard";
+import { fetchCommandCenterData, DashboardData } from "@/actions/app_actions/dashboard";
 import { useRealtime } from '@/hooks/use-realtime';
 import { QUERY_KEYS } from '@/lib/query-keys';
 import { LevelRing } from "@/components/student/dashboard/LevelRing";

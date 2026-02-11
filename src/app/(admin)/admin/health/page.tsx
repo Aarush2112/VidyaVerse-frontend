@@ -2,13 +2,12 @@ import React from "react";
 import { HealthMissionControl } from "@/components/admin/health/HealthMissionControl";
 import { LatencyChart } from "@/components/admin/health/LatencyChart";
 import { LiveLogViewer } from "@/components/admin/health/LiveLogViewer";
-import { seedHealthData } from "@/app/actions/health";
+
 import { Button } from "@/components/ui/button";
 import { RefreshCcw, LayoutDashboard, Settings } from "lucide-react";
 
 export default async function AdminHealthPage() {
     // Auto-seed if empty
-    await seedHealthData();
 
     return (
         <div className="min-h-screen bg-[#FAFAFA] text-slate-900 pb-20 font-sans">

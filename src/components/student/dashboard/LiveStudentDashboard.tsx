@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from '@tanstack/react-query';
-import { fetchCommandCenterData, DashboardData } from "@/actions/app_actions/dashboard";
+import { fetchCommandCenterData } from "@/app/actions/dashboard";
 import { useRealtime } from '@/hooks/use-realtime';
 import { QUERY_KEYS } from '@/lib/query-keys';
 import { LevelRing } from "@/components/student/dashboard/LevelRing";
@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useUser } from '@clerk/nextjs';
 
 interface LiveStudentDashboardProps {
-    initialData: DashboardData;
+    initialData: any;
 }
 
 export default function LiveStudentDashboard({ initialData }: LiveStudentDashboardProps) {
@@ -73,13 +73,13 @@ export default function LiveStudentDashboard({ initialData }: LiveStudentDashboa
                         </div>
                         {/* Quick Actions Integration */}
                         <div className="h-20 grid grid-cols-2 gap-8">
-                            <Link href="/student/ide" className="group flex items-center justify-center gap-3 bg-neu-base rounded-neu-sm shadow-neu-convex-md hover:shadow-neu-float hover:-translate-y-1 active:shadow-neu-concave-md transition-all">
+                            <Link href="/student/arena" className="group flex items-center justify-center gap-3 bg-neu-base rounded-neu-sm shadow-neu-convex-md hover:shadow-neu-float hover:-translate-y-1 active:shadow-neu-concave-md transition-all">
                                 <Code2 size={20} className="text-neu-accent group-hover:scale-110 transition-transform" />
-                                <span className="text-sm font-bold text-neu-text-main">Start Coding</span>
+                                <span className="text-sm font-bold text-neu-text-main">Arena</span>
                             </Link>
-                            <Link href="/student/courses" className="group flex items-center justify-center gap-3 bg-neu-base rounded-neu-sm shadow-neu-convex-md hover:shadow-neu-float hover:-translate-y-1 active:shadow-neu-concave-md transition-all">
+                            <Link href="/student/assignments" className="group flex items-center justify-center gap-3 bg-neu-base rounded-neu-sm shadow-neu-convex-md hover:shadow-neu-float hover:-translate-y-1 active:shadow-neu-concave-md transition-all">
                                 <BookOpen size={20} className="text-neu-text-main group-hover:text-neu-accent group-hover:scale-110 transition-transform" />
-                                <span className="text-sm font-bold text-neu-text-main">Library</span>
+                                <span className="text-sm font-bold text-neu-text-main">Assignments</span>
                             </Link>
                         </div>
                     </div>

@@ -1,14 +1,14 @@
 "use client";
 
 import { useQuery } from '@tanstack/react-query';
-import { getAssignmentsForList, AssignmentListData } from "@/app/actions/student";
+import { getAssignmentsForList } from "@/app/actions/student";
 import { useRealtime } from '@/hooks/use-realtime';
 import { QUERY_KEYS } from '@/lib/query-keys';
 import { AssignmentClient, AssignmentData } from "@/components/student/assignments/AssignmentClient";
 import { useUser } from '@clerk/nextjs';
 
 interface LiveStudentAssignmentsProps {
-    initialAssignments: AssignmentListData[];
+    initialAssignments: AssignmentData[];
 }
 
 export default function LiveStudentAssignments({ initialAssignments }: LiveStudentAssignmentsProps) {
@@ -21,9 +21,12 @@ export default function LiveStudentAssignments({ initialAssignments }: LiveStude
         initialData: initialAssignments,
     });
 
-    // Subscribe to Assignment and Submission changes
     useRealtime('Assignment', QUERY_KEYS.studentAssignments(userId));
     useRealtime('Submission', QUERY_KEYS.studentAssignments(userId));
 
-    return <AssignmentClient initialAssignments={assignments as AssignmentData[]} />;
+    return (
+        <AssignmentClient 
+            initialAssignments={assignments as AssignmentData[]} 
+        />
+    );
 }

@@ -9,7 +9,7 @@ import {
     Home
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { UserButton } from "@clerk/nextjs";
+import { LogoutButton } from "@/components/auth/LogoutButton";
 
 const routes = [
     {
@@ -76,13 +76,7 @@ export const StudentNav = ({ user }: StudentNavProps) => {
                 </div>
 
                 <div className="mt-auto mb-6">
-                    <UserButton
-                        appearance={{
-                            elements: {
-                                userButtonAvatarBox: "h-11 w-11 shadow-sm ring-2 ring-slate-100 hover:ring-[#5B86E5]/20 transition-all"
-                            }
-                        }}
-                    />
+                    <LogoutButton className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 text-slate-600 w-full" />
                 </div>
             </div>
 
@@ -98,7 +92,7 @@ export const StudentNav = ({ user }: StudentNavProps) => {
                     </Link>
                 ))}
                 <div className="p-1">
-                    <UserButton />
+                    <LogoutButton className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 text-slate-600" />
                 </div>
             </div>
         </>

@@ -3,7 +3,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Search, Bell } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
+import Link from "next/link";
 import { toast } from "sonner";
 
 interface KnowledgeDashboardLayoutProps {
@@ -53,17 +53,12 @@ export function KnowledgeDashboardLayout({ children, rightSidebar, hideRightSide
                             <span className="absolute top-4 right-4 h-2 w-2 bg-red-500 rounded-full ring-2 ring-white"></span>
                         </button>
 
-                        <div className="h-14 w-14 bg-slate-900 rounded-[20px] flex items-center justify-center text-white shadow-lg hover:scale-105 transition-transform overflow-hidden font-sans">
-                            <UserButton
-                                appearance={{
-                                    elements: {
-                                        userButtonAvatarBox: "h-14 w-14 rounded-none", // Try to match the square look or fill the container
-                                        userButtonTrigger: "h-14 w-14 rounded-[20px] focus:shadow-none",
-                                        avatarBox: "h-10 w-10"
-                                    }
-                                }}
-                            />
-                        </div>
+                        <Link
+                            href="/student/settings"
+                            className="h-14 w-14 bg-slate-900 rounded-[20px] flex items-center justify-center text-white shadow-lg hover:scale-105 transition-transform overflow-hidden font-sans"
+                        >
+                            <span className="text-lg font-semibold">U</span>
+                        </Link>
                     </div>
 
                     <div className="flex flex-col gap-6">

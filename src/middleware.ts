@@ -1,37 +1,34 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-// Define protected routes
-const isTeacherRoute = createRouteMatcher(["/teacher(.*)"]);
-const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
-const isStudentRoute = createRouteMatcher(["/student(.*)"]);
+const isTeacherRoute = (path: string) => /^\/teacher(\/|$)/.test(path);
+const isAdminRoute = (path: string) => /^\/admin(\/|$)/.test(path);
+const isStudentRoute = (path: string) => /^\/student(\/|$)/.test(path);
+const isAuthRoute = (path: string) => /^\/(sign-in|sign-up)(\/|$)/.test(path);
 
-export default clerkMiddleware(async (auth, req) => {
-    const { userId, sessionClaims, redirectToSignIn } = await auth();
+export function middleware(request: NextRequest) {
+    const token = request.cookies.get("access_token")?.value;
+    const path = request.nextUrl.pathname;
 
-    // 1. Strict Admin Gate
-    if (isAdminRoute(req)) {
-        if (!userId) return redirectToSignIn();
-
-        // RBAC: For now, we defer to the Server Actions/Page logic to check DB roles.
-        // The Middleware Session Claim check is too strict for dev if claims aren't set up.
-        // const role = (sessionClaims?.metadata as any)?.role;
-        // if (!role || !['SUPER_ADMIN', 'ACADEMIC_ADMIN', 'SUPPORT_AGENT', 'ADMIN'].includes(role)) {
-        //    return NextResponse.redirect(new URL("/403", req.url));
-        // }
+    if (isAuthRoute(path)) {
+        if (token) {
+            return NextResponse.redirect(new URL("/student", request.url));
+        }
+        return NextResponse.next();
     }
 
-    // Public routes check
-    if (!userId && (isTeacherRoute(req) || isStudentRoute(req))) {
-        return redirectToSignIn();
+    if (!token && (isTeacherRoute(path) || isStudentRoute(path) || isAdminRoute(path))) {
+        const signIn = new URL("/sign-in", request.url);
+        signIn.searchParams.set("redirect", path);
+        return NextResponse.redirect(signIn);
     }
-});
+
+    return NextResponse.next();
+}
 
 export const config = {
     matcher: [
-        // Skip Next.js internals and all static files, unless found in search params
-        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-        // Always run for API routes
-        '/(api|trpc)(.*)',
+        "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+        "/(api|trpc)(.*)",
     ],
 };

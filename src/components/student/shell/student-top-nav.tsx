@@ -1,9 +1,9 @@
 "use client";
 
-import { Bell, User } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Breadcrumbs } from "./breadcrumbs";
-import { UserButton } from "@clerk/nextjs";
+import { LogoutButton } from "@/components/auth/LogoutButton";
 
 export function StudentTopNav() {
     return (
@@ -20,14 +20,7 @@ export function StudentTopNav() {
 
                 <div className="h-8 w-px bg-zinc-800 mx-2" />
 
-                <UserButton
-                    afterSignOutUrl="/"
-                    appearance={{
-                        elements: {
-                            avatarBox: "h-8 w-8"
-                        }
-                    }}
-                />
+                <LogoutButton className="flex items-center gap-2 text-zinc-400 hover:text-white p-2 rounded-md" />
             </div>
         </header>
     )

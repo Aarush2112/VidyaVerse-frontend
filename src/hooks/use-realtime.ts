@@ -1,26 +1,20 @@
 import { useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 
+const POLL_INTERVAL_MS = 20_000; // 20s – data refreshed via query invalidation
+
+/**
+ * Keeps the given query key fresh by invalidating it on an interval.
+ * Replaces former Supabase realtime; all data is loaded via backend (actions/APIs).
+ */
 export function useRealtime(tableName: string, queryKey: string[]) {
     const queryClient = useQueryClient();
 
     useEffect(() => {
-        const channel = supabase
-            .channel(`public:${tableName}`)
-            .on(
-                'postgres_changes' as any,
-                { event: '*', schema: 'public', table: tableName } as any,
-                (payload: any) => {
-                    console.log(`Realtime update from ${tableName}:`, payload);
-                    // INSTANT REFRESH: Invalidate the specific query key
-                    queryClient.invalidateQueries({ queryKey });
-                }
-            )
-            .subscribe();
+        const interval = setInterval(() => {
+            queryClient.invalidateQueries({ queryKey });
+        }, POLL_INTERVAL_MS);
 
-        return () => {
-            supabase.removeChannel(channel as any);
-        };
+        return () => clearInterval(interval);
     }, [tableName, queryKey, queryClient]);
 }

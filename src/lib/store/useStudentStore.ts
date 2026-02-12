@@ -163,7 +163,7 @@ export const useStudentStore = create<StudentState>()(
             openModal: (modal) => set({ activeModal: modal })
         }),
         {
-            name: 'poorak-verse-storage',
+            name: 'vidyaverse-storage',
             partialize: (state) => ({
                 isSidebarCollapsed: state.isSidebarCollapsed,
                 themeDensity: state.themeDensity

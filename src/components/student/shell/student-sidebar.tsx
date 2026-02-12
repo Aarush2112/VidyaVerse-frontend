@@ -34,7 +34,7 @@ export function StudentSidebar() {
                 <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center mr-3 font-bold text-white">
                     P
                 </div>
-                <span className="font-bold text-lg tracking-tight text-white">PoorakVerse</span>
+                <span className="font-bold text-lg tracking-tight text-white">Vidyaverse</span>
             </div>
 
             {/* Navigation */}

@@ -1,20 +1,17 @@
 "use client"
 
 import Link from "next/link"
-import { useUser } from "@clerk/nextjs"
 import { LayoutDashboard, ClipboardList, Code2, Trophy, Settings } from "lucide-react"
 
 export function KnowledgeSidebar() {
-  const { user } = useUser()
-
   return (
     <aside className="w-64 min-h-screen bg-black text-white p-6 space-y-6">
       <div className="text-xl font-bold">
-        VidyaVerse
+        Vidyaverse
       </div>
 
       <div className="text-sm opacity-70">
-        {user?.firstName || "Student"}
+        Student
       </div>
 
       <nav className="space-y-4 pt-6">

@@ -10,19 +10,13 @@ import { TimelineWidget } from "@/components/student/dashboard/TimelineWidget";
 import { ActiveOperationHero } from "@/components/student/dashboard/ActiveOperationHero";
 import { Code2, BookOpen } from "lucide-react";
 import Link from "next/link";
-import { useUser } from '@clerk/nextjs';
-
 interface LiveStudentDashboardProps {
     initialData: any;
 }
 
 export default function LiveStudentDashboard({ initialData }: LiveStudentDashboardProps) {
-    const { user } = useUser();
-    const userId = user?.id || "guest"; // Clerk ID
-
-    // 1. Fetching Data with React Query
     const { data: dashboardData } = useQuery({
-        queryKey: QUERY_KEYS.studentDashboard(userId),
+        queryKey: QUERY_KEYS.studentDashboard("student"),
         queryFn: () => fetchCommandCenterData(),
         initialData: initialData,
     });
@@ -31,11 +25,10 @@ export default function LiveStudentDashboard({ initialData }: LiveStudentDashboa
 
     // 2. Realtime Subscriptions
     // We listen to changes in these tables to trigger a dashboard refresh
-    useRealtime('Assignment', QUERY_KEYS.studentDashboard(userId));
-    useRealtime('User', QUERY_KEYS.studentDashboard(userId));
-    useRealtime('UserProgress', QUERY_KEYS.studentDashboard(userId));
-    // Note: 'Submission' updates might also affect gamification/missions, so good to listen
-    useRealtime('Submission', QUERY_KEYS.studentDashboard(userId));
+    useRealtime('Assignment', QUERY_KEYS.studentDashboard("student"));
+    useRealtime('User', QUERY_KEYS.studentDashboard("student"));
+    useRealtime('UserProgress', QUERY_KEYS.studentDashboard("student"));
+    useRealtime('Submission', QUERY_KEYS.studentDashboard("student"));
 
     return (
         <div className="min-h-screen bg-neu-base p-6 md:p-12 font-sans text-neu-text-main pb-32">

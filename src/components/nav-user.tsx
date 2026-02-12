@@ -5,7 +5,6 @@ import {
     Bell,
     ChevronsUpDown,
     CreditCard,
-    LogOut,
     Sparkles,
 } from "lucide-react"
 
@@ -29,8 +28,7 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar"
-import { SignOutButton, useClerk } from "@clerk/nextjs"
-import { useRouter } from "next/navigation"
+import { LogoutButton } from "@/components/auth/LogoutButton"
 
 export function NavUser({
     user,
@@ -42,8 +40,6 @@ export function NavUser({
     }
 }) {
     const { isMobile } = useSidebar()
-    const { openUserProfile } = useClerk()
-    const router = useRouter()
 
     return (
         <SidebarMenu>
@@ -85,23 +81,18 @@ export function NavUser({
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
-                            <DropdownMenuItem onClick={() => openUserProfile()} className="cursor-pointer">
+                            <DropdownMenuItem onClick={() => window.location.href = "/student/settings"} className="cursor-pointer">
                                 <BadgeCheck />
                                 Account Profile
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => router.push('/admin/logs')} className="cursor-pointer">
+                            <DropdownMenuItem onClick={() => window.location.href = "/admin/logs"} className="cursor-pointer">
                                 <Bell />
                                 System Alerts
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <SignOutButton redirectUrl="/">
-                                <button className="flex w-full items-center gap-2">
-                                    <LogOut className="h-4 w-4" />
-                                    <span>Log out</span>
-                                </button>
-                            </SignOutButton>
+                            <LogoutButton className="flex w-full items-center gap-2 cursor-pointer" />
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

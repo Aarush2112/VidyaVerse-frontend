@@ -33,7 +33,7 @@ import { ModeToggle } from "@/components/mode-toggle"
 const data = {
     user: {
         name: "Student",
-        email: "student@poorakverse.com",
+        email: "student@vidyaverse.com",
         avatar: "/avatars/shadcn.jpg",
     },
     navMain: [
